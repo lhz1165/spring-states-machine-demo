@@ -5,4 +5,7 @@ package com.lhz.enums;
  * @date 2023/11/28 9:55
  */
 public enum OrderEvents {
+    FULFILL,
+    PAY,
+    CANCEL
 }
