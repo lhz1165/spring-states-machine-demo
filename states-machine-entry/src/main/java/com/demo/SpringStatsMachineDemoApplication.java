@@ -1,22 +1,26 @@
-package com.lhz.statesmachine.demo;
+package com.demo;
 
-import com.lhz.statesmachine.demo.enums.Events;
-import com.lhz.statesmachine.demo.enums.States;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.statemachine.StateMachine;
 
-/**
- * history
- */
 @SpringBootApplication
-public class SpringStatsMachineDemoApplication {
+public class SpringStatsMachineDemoApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
         SpringApplication.run(SpringStatsMachineDemoApplication.class, args);
     }
 
+    @Autowired
+    private StateMachine<String, String> stateMachine;
 
+    @Override
+    public void run(String... args) throws Exception {
+        stateMachine.start();
+        stateMachine.sendEvent("ENTRY");
+        stateMachine.sendEvent("EXIT");
+    }
 }

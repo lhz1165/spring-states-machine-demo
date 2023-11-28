@@ -6,14 +6,20 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="persist" />
         <module name="states-machine-startup" />
+        <module name="turnstile" />
+        <module name="states-machine-entry" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="persist" options="-parameters" />
       <module name="spring-states-machine-demo" options="" />
+      <module name="states-machine-entry" options="-parameters" />
       <module name="states-machine-startup" options="-parameters" />
+      <module name="turnstile" options="-parameters" />
     </option>
   </component>
 </project>

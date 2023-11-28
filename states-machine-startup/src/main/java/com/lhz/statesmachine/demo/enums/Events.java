@@ -5,5 +5,6 @@ package com.lhz.statesmachine.demo.enums;
  * @date 2023/11/23 15:25
  */
 public enum Events {
-    E1, E2
+    RINSE, DRY, STOP,
+    RESTOREPOWER, CUTPOWER
 }
