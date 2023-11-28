@@ -35,10 +35,12 @@ public class OrderService {
     private static  final String ORDER_ID_HEADER="orderId";
 
     public StateMachine<OrderStates, OrderEvents> pay(Long orderId,String paymentMsg) {
+
         StateMachine<OrderStates, OrderEvents> machine = this.build(orderId);
+
         Message<OrderEvents> msg = MessageBuilder.withPayload(OrderEvents.PAY)
                 .setHeader(ORDER_ID_HEADER, orderId)
-                .setHeader("payMsg", "PAY ok")
+                .setHeader("payMsg", paymentMsg)
                 .build();
         machine.sendEvent(msg);
         return machine;
