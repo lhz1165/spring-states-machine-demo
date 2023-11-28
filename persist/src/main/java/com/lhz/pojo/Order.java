@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.lhz.enums.OrderStates;
 
 /**
  * @author laihz
@@ -12,7 +13,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 @TableName("`order`")
 public class Order {
     @TableId(value = "id",type = IdType.AUTO)
-    Integer id;
+    Long id;
     @TableField("`state`")
     String state;
 
@@ -20,25 +21,25 @@ public class Order {
         this.state = state;
     }
 
-    public Order(Integer id, String state) {
+    public Order(Long id, String state) {
         this.id = id;
         this.state = state;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getState() {
-        return state;
+    public OrderStates getState() {
+        return OrderStates.valueOf(state);
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setState(OrderStates state) {
+        this.state = state.name();
     }
 
     @Override

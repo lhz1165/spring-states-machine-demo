@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -24,7 +26,7 @@ import org.springframework.statemachine.transition.Transition;
  */
 @Log4j2
 @Configuration
-@EnableStateMachine
+@EnableStateMachineFactory
 public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderStates, OrderEvents> {
     @Override
     public void configure(StateMachineConfigBuilder<OrderStates, OrderEvents> config) throws Exception {
@@ -51,6 +53,14 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
 
         states.withStates()
                 .initial(OrderStates.SUBMITTED)
+                .stateEntry(OrderStates.SUBMITTED, new Action<OrderStates, OrderEvents>() {
+                    @Override
+                    public void execute(StateContext<OrderStates, OrderEvents> stateContext) {
+                        Long orderId = (Long) stateContext.getExtendedState().getVariables().getOrDefault("orderId", -1);
+                        log.info("orderId is {}",orderId);
+                        log.info("entry submitted state!");
+                    }
+                })
                 .state(OrderStates.PAID)
                 .state(OrderStates.FULFILLED)
                 .end(OrderStates.CANCELLED);
@@ -59,10 +69,14 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
     @Override
     public void configure(StateMachineTransitionConfigurer<OrderStates, OrderEvents> transitions) throws Exception {
         transitions
-                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.PAID).event(OrderEvents.PAY).action(null)
+                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.PAID).event(OrderEvents.PAY)
                 .and()
-                .withExternal().source(OrderStates.PAID).target(OrderStates.FULFILLED).event(OrderEvents.FULFILL).action(null)
+                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL)
                 .and()
-                .withExternal().source(OrderStates.FULFILLED).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL).action(null);
+                .withExternal().source(OrderStates.PAID).target(OrderStates.FULFILLED).event(OrderEvents.FULFILL)
+                .and()
+                .withExternal().source(OrderStates.PAID).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL)
+                .and()
+                .withExternal().source(OrderStates.FULFILLED).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL);
     }
 }
