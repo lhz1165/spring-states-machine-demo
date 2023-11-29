@@ -2,6 +2,7 @@ package com.lhz.config;
 
 import com.lhz.enums.OrderEvents;
 import com.lhz.enums.OrderStates;
+import com.lhz.pojo.Order;
 import com.lhz.service.OrderService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.ApplicationArguments;
@@ -22,11 +23,11 @@ public class Runner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        orderService.create();
+//        Order order = orderService.create();
 
-       orderService.pay(3L,"pay test");
+        //orderService.pay(order.getId(),"pay test");
 
-       orderService.fulfill(3L);
+//       orderService.fulfill(order.getId());
 
 
     }
