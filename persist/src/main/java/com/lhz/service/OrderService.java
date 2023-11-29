@@ -1,5 +1,6 @@
 package com.lhz.service;
 
+import com.lhz.config.StateMachineInterceptorConfig;
 import com.lhz.enums.OrderEvents;
 import com.lhz.enums.OrderStates;
 import com.lhz.mapper.OrderMapper;
@@ -36,6 +37,9 @@ public class OrderService {
     @Resource
     private StateMachineFactory<OrderStates, OrderEvents> factory;
 
+    @Resource
+    private StateMachineInterceptorConfig interceptorConfig;
+
     public Order get(Long id) {
         return orderMapper.selectById(id);
     }
@@ -47,7 +51,7 @@ public class OrderService {
     }
 
 
-    private static  final String ORDER_ID_HEADER="orderId";
+    public static  final String ORDER_ID_HEADER="orderId";
 
     public StateMachine<OrderStates, OrderEvents> pay(Long orderId) {
 
@@ -103,45 +107,14 @@ public class OrderService {
         //通过StateMachineAccessor访问到StateMachine内部
         stateMachine.getStateMachineAccessor()
                 //所有Regions
-                .doWithAllRegions(new StateMachineFunction<StateMachineAccess<OrderStates, OrderEvents>>() {
-                    @Override
-                    public void apply(StateMachineAccess<OrderStates, OrderEvents> sma) {
-                        OrderStates state = order.getState();
-                        //配置拦截器
-                        sma.addStateMachineInterceptor(new StateMachineInterceptorAdapter<OrderStates, OrderEvents>(){
-                            //statemachine状态改变后更新数据库
-                            @Override
-                            public void postStateChange(State<OrderStates, OrderEvents> state, Message<OrderEvents> message, Transition<OrderStates, OrderEvents> transition, StateMachine<OrderStates, OrderEvents> stateMachine, StateMachine<OrderStates, OrderEvents> rootStateMachine) {
-                                try {
-                                    Long id = (Long)message.getHeaders().getOrDefault(ORDER_ID_HEADER, -1L);
-                                    Order newOrder = new Order(id, state.getId().name());
-                                    orderMapper.updateById(newOrder);
-                                } catch (Exception e) {
-                                    stateMachine.setStateMachineError(e);
-                                }
-                            }
-
-                            @Override
-                            public Message<OrderEvents> preEvent(Message<OrderEvents> message, StateMachine<OrderStates, OrderEvents> stateMachine) {
-                                return super.preEvent(message, stateMachine);
-                            }
-
-                            @Override
-                            public void preStateChange(State<OrderStates, OrderEvents> state, Message<OrderEvents> message, Transition<OrderStates, OrderEvents> transition, StateMachine<OrderStates, OrderEvents> stateMachine, StateMachine<OrderStates, OrderEvents> rootStateMachine) {
-                                super.preStateChange(state, message, transition, stateMachine, rootStateMachine);
-                            }
-                            @Override
-                            public Exception stateMachineError(StateMachine<OrderStates, OrderEvents> stateMachine, Exception exception) {
-                                //todo 出现异常
-                                stateMachine.getExtendedState().getVariables().put("exception",exception);
-                                System.out.println("error");
-                                return exception;
-                            }
-
-                        });
-                        sma.resetStateMachine(new DefaultStateMachineContext<OrderStates, OrderEvents>(state,null,null,null));
+                .doWithAllRegions(sma -> {
+                    OrderStates state = order.getState();
+                    //配置拦截器
+                    sma.addStateMachineInterceptor(interceptorConfig);
+                     //重置状态机
+                    sma.resetStateMachine(new DefaultStateMachineContext<>(state, null, null, null, null, stateMachine.getId()));
                     }
-                });
+                );
         stateMachine.start();
         return stateMachine;
     }

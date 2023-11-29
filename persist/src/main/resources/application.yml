@@ -4,7 +4,8 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
-
+    hikari:
+      connection-timeout: 1000
 logging:
   level:
-    com.lhz.mapper: debug
+    com.lhz.mapper: off

@@ -39,7 +39,9 @@ public class OrderController {
     public String pay(@RequestParam Long id) {
         StateMachine<OrderStates, OrderEvents> sm = orderService.pay(id);
         if (sm.hasStateMachineError()) {
-            return "error";
+            Exception e = (Exception)sm.getExtendedState().getVariables().get("exception");
+            log.error("pay exception",e );
+            return e.getMessage();
         }
         return "success";
     }
@@ -50,7 +52,7 @@ public class OrderController {
         if (sm.hasStateMachineError()) {
             Exception e = (Exception)sm.getExtendedState().getVariables().get("exception");
             log.error("fulfill exception",e );
-            return "error";
+            return e.getMessage();
         }
 
         return "success";
@@ -62,7 +64,7 @@ public class OrderController {
         if (sm.hasStateMachineError()) {
             Exception e = (Exception)sm.getExtendedState().getVariables().get("exception");
             log.error("cancel exception",e );
-            return "error";
+            return e.getMessage();
         }
         return "success";
     }
