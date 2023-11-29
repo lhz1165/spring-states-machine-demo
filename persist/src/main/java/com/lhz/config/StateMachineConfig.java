@@ -37,17 +37,6 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
         states.withStates()
                 .initial(OrderStates.SUBMITTED)
                 //进入状态事件
-                .stateEntry(OrderStates.SUBMITTED, new Action<OrderStates, OrderEvents>() {
-                    @Override
-                    public void execute(StateContext<OrderStates, OrderEvents> stateContext) {
-                        Long orderId = (Long) stateContext.getExtendedState().getVariables().getOrDefault("orderId", -1L);
-                        log.info("orderId is {}", orderId);
-                        log.info("entry submitted state!");
-                        throw new RuntimeException("error");
-                    }
-                }, context -> {
-                    log.error("stateEntry  SUBMITTED error");
-                })
                 .state(OrderStates.PAID)
                 .state(OrderStates.FULFILLED)
                 .end(OrderStates.CANCELLED);
