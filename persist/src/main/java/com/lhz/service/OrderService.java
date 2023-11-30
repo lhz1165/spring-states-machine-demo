@@ -58,9 +58,9 @@ public class OrderService {
         StateMachine<OrderStates, OrderEvents> machine = this.build(orderId);
 
         //通过header设置想要传递的参数
-        Message<OrderEvents> msg = MessageBuilder.withPayload(OrderEvents.PAY)
+        Message<OrderEvents> msg = MessageBuilder
+                .withPayload(OrderEvents.PAY)
                 .setHeader(ORDER_ID_HEADER, orderId)
-                .setHeader("payMsg", "paymentMsg")
                 .build();
 
         machine.sendEvent(msg);
@@ -102,7 +102,6 @@ public class OrderService {
         Order order = orderMapper.selectById(orderId);
         String orderIdKey = Long.toString(order.getId());
         StateMachine<OrderStates, OrderEvents> stateMachine = factory.getStateMachine(orderIdKey);
-        stateMachine.stop();
 
         //通过StateMachineAccessor访问到StateMachine内部
         stateMachine.getStateMachineAccessor()

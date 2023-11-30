@@ -47,10 +47,12 @@ public class StateMachineInterceptorConfig extends StateMachineInterceptorAdapte
         super.preStateChange(state, message, transition, stateMachine, rootStateMachine);
     }
     @Override
-    public Exception stateMachineError(StateMachine<OrderStates, OrderEvents> stateMachine, Exception exception) {
+    public Exception stateMachineError(StateMachine<OrderStates, OrderEvents> sm, Exception exception) {
         //todo 出现异常
         log.info("3. 拦截器处理异常");
-        stateMachine.getExtendedState().getVariables().put("exception",exception);
+        if(!sm.getExtendedState().getVariables().containsKey("exception")){
+            sm.getExtendedState().getVariables().put("exception",exception);
+        }
         return exception;
     }
 

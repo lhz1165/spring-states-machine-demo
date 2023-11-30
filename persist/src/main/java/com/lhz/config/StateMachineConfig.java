@@ -45,7 +45,18 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
     @Override
     public void configure(StateMachineTransitionConfigurer<OrderStates, OrderEvents> transitions) throws Exception {
         transitions
-                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.PAID).event(OrderEvents.PAY)
+                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.PAID).event(OrderEvents.PAY).action(new Action<OrderStates, OrderEvents>() {
+                    @Override
+                    public void execute(StateContext<OrderStates, OrderEvents> context) {
+                        try {
+                            context.getMessage().getHeaders().get("order");
+
+                        } catch (Exception e) {
+                            context.getStateMachine().setStateMachineError(e);
+                        }
+
+                    }
+                })
                 .and()
                 .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL)
                 .and()
