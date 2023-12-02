@@ -10,12 +10,14 @@
         <module name="persist" />
         <module name="states-machine-startup" />
         <module name="turnstile" />
+        <module name="cola-demo" />
         <module name="states-machine-entry" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="cola-demo" options="-parameters" />
       <module name="persist" options="-parameters" />
       <module name="spring-states-machine-demo" options="" />
       <module name="states-machine-entry" options="-parameters" />

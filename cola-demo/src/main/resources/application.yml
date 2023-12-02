@@ -9,3 +9,5 @@ spring:
 logging:
   level:
     com.lhz.mapper: off
+server:
+  port: 9090

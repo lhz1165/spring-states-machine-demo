@@ -12,6 +12,7 @@ import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.ExternalTransitionConfigurer;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
@@ -38,33 +39,37 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
                 .initial(OrderStates.SUBMITTED)
                 //进入状态事件
                 .state(OrderStates.PAID)
+                .stateEntry(OrderStates.PAID, new Action<OrderStates, OrderEvents>() {
+                    @Override
+                    public void execute(StateContext<OrderStates, OrderEvents> context) {
+                        System.out.println("entry");
+                    }
+                })
                 .state(OrderStates.FULFILLED)
                 .end(OrderStates.CANCELLED);
     }
 
     @Override
     public void configure(StateMachineTransitionConfigurer<OrderStates, OrderEvents> transitions) throws Exception {
-        transitions
-                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.PAID).event(OrderEvents.PAY).action(new Action<OrderStates, OrderEvents>() {
-                    @Override
-                    public void execute(StateContext<OrderStates, OrderEvents> context) {
-                        try {
-                            context.getMessage().getHeaders().get("order");
+        ExternalTransitionConfigurer<OrderStates, OrderEvents> event = transitions
+                .withExternal()
+                .source(OrderStates.SUBMITTED)
+                .target(OrderStates.PAID)
+                .event(OrderEvents.PAY)
+                .action(new PayAction());
+                //.guard()
 
-                        } catch (Exception e) {
-                            context.getStateMachine().setStateMachineError(e);
-                        }
-
-                    }
-                })
-                .and()
-                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL)
-                .and()
-                .withExternal().source(OrderStates.PAID).target(OrderStates.FULFILLED).event(OrderEvents.FULFILL)
-                .and()
-                .withExternal().source(OrderStates.PAID).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL)
-                .and()
-                .withExternal().source(OrderStates.FULFILLED).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL);
+//
+//
+//                .and()
+//                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL)
+//                .and()
+//                .withExternal().source(OrderStates.PAID).target(OrderStates.FULFILLED).event(OrderEvents.FULFILL)
+//                .and()
+//                .withExternal().source(OrderStates.PAID).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL)
+//                .and()
+//                .withExternal().source(OrderStates.FULFILLED).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL);
+//        System.out.println();
     }
 
 
